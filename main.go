@@ -82,7 +82,7 @@ func middlewareLivros(writer http.ResponseWriter, request *http.Request) {
 		if request.Method == "GET" {
 			buscarLivros(writer, request)
 		} else if request.Method == "DELETE" {
-			excluirLivroe(writer, request)
+			excluirLivro(writer, request)
 		}
 	} else {
 		writer.WriteHeader(http.StatusNotFound)
@@ -90,7 +90,7 @@ func middlewareLivros(writer http.ResponseWriter, request *http.Request) {
 	}
 }
 
-func excluirLivroe(writer http.ResponseWriter, request *http.Request) {
+func excluirLivro(writer http.ResponseWriter, request *http.Request) {
 	path := request.URL.Path
 	fmt.Println(path)
 	// "/livros/{id}" -> ["","livros","{id}"]
