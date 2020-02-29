@@ -83,11 +83,63 @@ func middlewareLivros(writer http.ResponseWriter, request *http.Request) {
 			buscarLivros(writer, request)
 		} else if request.Method == "DELETE" {
 			excluirLivro(writer, request)
+		} else if request.Method == "PUT" {
+			alterarLiro(writer, request)
 		}
 	} else {
 		writer.WriteHeader(http.StatusNotFound)
 		return
 	}
+}
+
+func alterarLiro(writer http.ResponseWriter, request *http.Request) {
+
+	path := request.URL.Path
+	fmt.Println(path)
+	// "/livros/{id}" -> ["","livros","{id}"]
+	partes := strings.Split(path, "/")
+
+	idLivro, err := strconv.Atoi(partes[2])
+
+	if err != nil {
+		writer.WriteHeader(http.StatusInternalServerError)
+		encoder := json.NewEncoder(writer)
+		encoder.Encode(strings.Contains("Erro ao Deserializar path", err.Error()))
+	}
+
+	indiceLivro := -1
+
+	for indece, livro := range Livros {
+		if livro.Id == idLivro {
+			indiceLivro = indece
+			break
+		}
+	}
+
+	if indiceLivro < 0 {
+		writer.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	bytesBody, err := ioutil.ReadAll(request.Body)
+	if err != nil {
+
+		writer.WriteHeader(http.StatusInternalServerError)
+		encoder := json.NewEncoder(writer)
+		encoder.Encode(strings.Contains("Erro ao Deserializar Json", err.Error()))
+	}
+	var livroModificado Livro
+	err = json.Unmarshal(bytesBody, &livroModificado)
+	if err != nil {
+
+		writer.WriteHeader(http.StatusBadRequest)
+		encoder := json.NewEncoder(writer)
+		encoder.Encode(strings.Contains("Erro ao Serializar Json", err.Error()))
+	}
+
+	Livros[indiceLivro] = livroModificado
+	json.NewEncoder(writer).Encode(livroModificado)
+
 }
 
 func excluirLivro(writer http.ResponseWriter, request *http.Request) {
